@@ -1,5 +1,5 @@
 // Identificador exclusivo do grupo. Manter igual ao BASE_TOPIC de simulator/simulator.js.
-export const BASE_TOPIC = 'fiap/3ess/triton';
+export const BASE_TOPIC = 'fiap/3ess/iotctl-x7k3q';
 
 export const TOPICS = {
   temperature: `${BASE_TOPIC}/sensor/temperatura`,

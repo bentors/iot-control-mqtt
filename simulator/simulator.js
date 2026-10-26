@@ -4,7 +4,7 @@ const mqtt = require('mqtt');
 
 const MQTT_URL = process.env.MQTT_URL || 'wss://broker.hivemq.com:8884/mqtt';
 // Manter igual ao BASE_TOPIC de src/services/topics.ts
-const BASE_TOPIC = process.env.BASE_TOPIC || 'fiap/3ess/triton';
+const BASE_TOPIC = process.env.BASE_TOPIC || 'fiap/3ess/iotctl-x7k3q';
 const INTERVAL_MS = Number(process.env.INTERVAL_MS) || 5000;
 
 const TOPICS = {

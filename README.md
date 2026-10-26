@@ -8,9 +8,11 @@ Aplicativo mobile em **React Native + Expo + TypeScript** que monitora e control
 
 | Nome completo | RM |
 |---|---|
-| _PREENCHER_ | _RM00000_ |
-| _PREENCHER_ | _RM00000_ |
-| _PREENCHER_ | _RM00000_ |
+| Ricardo Di Tilia | RM555155 |
+| Bento Rangel | RM559124 |
+| Eric Yuji | RM554869 |
+| Kaue Pires | RM554403 |
+| Higor Batista | RM558907 |
 
 ## Tecnologias
 
@@ -62,14 +64,14 @@ Alternativa: `wss://broker.emqx.io:8084/mqtt`. Para usar outro broker no simulad
 
 ## Tópicos MQTT
 
-Tópico base exclusivo do grupo: **`fiap/3ess/triton`** (definido em `src/services/topics.ts` e `simulator/simulator.js`).
+Tópico base exclusivo do grupo: **`fiap/3ess/iotctl-x7k3q`** (definido em `src/services/topics.ts` e `simulator/simulator.js`).
 
 | Tópico | Direção no app | Payload | Quem publica |
 |---|---|---|---|
-| `fiap/3ess/triton/sensor/temperatura` | Subscribe | `{"value":24.5}` | Simulador (a cada 5 s) |
-| `fiap/3ess/triton/sensor/umidade` | Subscribe | `{"value":58}` | Simulador (a cada 5 s) |
-| `fiap/3ess/triton/lampada/comando` | Publish | `{"action":"ON"}` / `{"action":"OFF"}` | App |
-| `fiap/3ess/triton/lampada/estado` | Subscribe | `{"state":"ON"}` / `{"state":"OFF"}` | Simulador (após cada comando, com `retain`) |
+| `fiap/3ess/iotctl-x7k3q/sensor/temperatura` | Subscribe | `{"value":24.5}` | Simulador (a cada 5 s) |
+| `fiap/3ess/iotctl-x7k3q/sensor/umidade` | Subscribe | `{"value":58}` | Simulador (a cada 5 s) |
+| `fiap/3ess/iotctl-x7k3q/lampada/comando` | Publish | `{"action":"ON"}` / `{"action":"OFF"}` | App |
+| `fiap/3ess/iotctl-x7k3q/lampada/estado` | Subscribe | `{"state":"ON"}` / `{"state":"OFF"}` | Simulador (após cada comando, com `retain`) |
 
 Payloads fora desse formato (JSON inválido, `value` não numérico, `state` diferente de `ON`/`OFF`) são ignorados pela interface e aparecem no histórico marcados como **inválida**. O app não quebra.
 
@@ -84,7 +86,7 @@ Payloads fora desse formato (JSON inválido, `value` não numérico, `state` dif
 ```bash
 npm run simulator
 # variáveis opcionais:
-MQTT_URL=wss://broker.emqx.io:8084/mqtt BASE_TOPIC=fiap/3ess/triton INTERVAL_MS=2000 npm run simulator
+MQTT_URL=wss://broker.emqx.io:8084/mqtt BASE_TOPIC=fiap/3ess/iotctl-x7k3q INTERVAL_MS=2000 npm run simulator
 ```
 
 ### Roteiro de verificação (ciclo completo)
@@ -102,8 +104,8 @@ MQTT_URL=wss://broker.emqx.io:8084/mqtt BASE_TOPIC=fiap/3ess/triton INTERVAL_MS=
 
 Em qualquer cliente MQTT (ex.: [MQTTX](https://mqttx.app) ou o [HiveMQ WebSocket Client](https://www.hivemq.com/demos/websocket-client/)), conecte em `broker.hivemq.com`, porta `8884`, SSL ligado, caminho `/mqtt`:
 
-- publique `{"value":26}` em `fiap/3ess/triton/sensor/temperatura`;
-- assine `fiap/3ess/triton/lampada/comando` e, ao ver `{"action":"ON"}`, publique `{"state":"ON"}` em `fiap/3ess/triton/lampada/estado`.
+- publique `{"value":26}` em `fiap/3ess/iotctl-x7k3q/sensor/temperatura`;
+- assine `fiap/3ess/iotctl-x7k3q/lampada/comando` e, ao ver `{"action":"ON"}`, publique `{"state":"ON"}` em `fiap/3ess/iotctl-x7k3q/lampada/estado`.
 
 ## Telas e funcionalidades
 
