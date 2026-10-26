@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, Text } from 'react-native';
 import { MessageItem } from '../components/MessageItem';
-import { useMqtt } from '../context/MqttContext';
+import { HISTORY_LIMIT, useMqtt } from '../context/MqttContext';
 import { useTheme } from '../context/ThemeContext';
 
 export default function HistoryScreen() {
@@ -16,7 +16,7 @@ export default function HistoryScreen() {
       renderItem={({ item }) => <MessageItem message={item} />}
       ListHeaderComponent={
         <Text style={[styles.header, { color: colors.muted }]}>
-          Últimas 10 mensagens (mais recentes primeiro)
+          Últimas {HISTORY_LIMIT} mensagens (mais recentes primeiro)
         </Text>
       }
       ListEmptyComponent={

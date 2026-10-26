@@ -27,12 +27,15 @@ export function onMessage(listener: MessageListener): () => void {
   return () => messageListeners.delete(listener);
 }
 
-export function connect(url: string) {
+export const isValidBrokerUrl = (url: string): boolean => /^wss?:\/\/\S+$/.test(url);
+
+/** Inicia a conexão; retorna false se a URL for inválida. */
+export function connect(url: string): boolean {
   disconnect();
 
-  if (!/^wss?:\/\//.test(url)) {
+  if (!isValidBrokerUrl(url)) {
     emitStatus('error', 'A URL deve começar com ws:// ou wss://');
-    return;
+    return false;
   }
 
   emitStatus('connecting');
@@ -43,37 +46,46 @@ export function connect(url: string) {
     clean: true,
   });
   client = c;
+  let lastError: string | null = null;
+
+  // Os listeners não são removidos no disconnect() (isso apagaria os handlers internos do mqtt.js,
+  // e um 'error' tardio sem listener derrubaria o app); eventos de um cliente antigo são ignorados aqui.
+  const isCurrent = () => client === c;
 
   c.on('connect', () => {
+    if (!isCurrent()) return;
+    lastError = null;
     emitStatus('connected');
     c.subscribe(SUBSCRIBED_TOPICS, { qos: 0 }, (err) => {
-      if (err) emitStatus('error', `Falha ao inscrever nos tópicos: ${err.message}`);
+      if (err && isCurrent()) emitStatus('error', `Falha ao inscrever nos tópicos: ${err.message}`);
     });
   });
-  c.on('reconnect', () => emitStatus('connecting'));
-  c.on('error', (err) => emitStatus('error', err.message));
-  // 'close' só chega aqui se a desconexão não foi pedida pelo usuário (disconnect() remove os listeners antes).
-  c.on('close', () =>
-    emitStatus('error', `Conexão perdida. Tentando reconectar em ${RECONNECT_PERIOD_MS / 1000}s…`),
-  );
+  c.on('reconnect', () => isCurrent() && emitStatus('connecting'));
+  c.on('error', (err) => {
+    if (!isCurrent()) return;
+    lastError = err.message;
+    emitStatus('error', err.message);
+  });
+  c.on('close', () => {
+    if (!isCurrent()) return;
+    const retry = `Tentando reconectar em ${RECONNECT_PERIOD_MS / 1000}s…`;
+    emitStatus('error', lastError ? `${lastError}. ${retry}` : `Conexão perdida. ${retry}`);
+  });
   c.on('message', (topic, buffer) => {
+    if (!isCurrent()) return;
     const payload = buffer.toString();
     messageListeners.forEach((listener) => listener(topic, payload));
   });
+  return true;
 }
 
 export function disconnect() {
   if (!client) return;
   const c = client;
   client = null;
-  c.removeAllListeners();
   if (c.connected) c.unsubscribe(SUBSCRIBED_TOPICS);
   c.end(true);
   emitStatus('disconnected');
-}
-
-export function isConnected(): boolean {
-  return client?.connected ?? false;
 }
 
 /** Publica e resolve quando o broker aceita; rejeita se estiver desconectado. */

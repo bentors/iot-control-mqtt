@@ -12,7 +12,7 @@ import type {
   SensorReading,
 } from '../types/mqtt';
 
-const HISTORY_LIMIT = 10;
+export const HISTORY_LIMIT = 10;
 const COMMAND_TIMEOUT_MS = 5000;
 
 interface MqttContextValue {
@@ -84,7 +84,8 @@ export function MqttProvider({ initialBrokerUrl, children }: MqttProviderProps) 
         valid = state !== null;
         if (state !== null) {
           setLamp({ state, timestamp });
-          setPendingCommand(null);
+          // Só confirma o comando pendente se o estado recebido for o que foi pedido.
+          setPendingCommand((pending) => (pending === state ? null : pending));
           setCommandError(null);
         }
       }
@@ -113,19 +114,27 @@ export function MqttProvider({ initialBrokerUrl, children }: MqttProviderProps) 
 
   const connect = (url: string) => {
     const trimmed = url.trim();
+    if (trimmed !== brokerUrl) {
+      // Leituras do broker anterior não valem para o novo.
+      setTemperature(null);
+      setHumidity(null);
+      setLamp(null);
+      setPendingCommand(null);
+    }
     setBrokerUrl(trimmed);
-    saveBrokerUrl(trimmed).catch(() => {});
-    mqttService.connect(trimmed);
+    if (mqttService.connect(trimmed)) saveBrokerUrl(trimmed).catch(() => {});
   };
 
   const sendLampCommand = async (action: LampState) => {
     const payload = JSON.stringify({ action });
     setCommandError(null);
+    // Marca como pendente antes de publicar: desabilita os botões e evita duplo toque.
+    setPendingCommand(action);
     try {
       await mqttService.publish(TOPICS.lampCommand, payload);
       addHistory(TOPICS.lampCommand, payload, 'sent', true);
-      setPendingCommand(action);
     } catch (err) {
+      setPendingCommand(null);
       setCommandError(err instanceof Error ? err.message : 'Falha ao publicar comando.');
     }
   };

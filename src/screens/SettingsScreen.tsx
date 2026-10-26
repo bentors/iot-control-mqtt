@@ -13,7 +13,8 @@ export default function SettingsScreen() {
 
   useEffect(() => setUrl(brokerUrl), [brokerUrl]);
 
-  const isActive = status === 'connected' || status === 'connecting';
+  // Em 'error' o cliente continua tentando reconectar, então Desconectar também deve aparecer.
+  const isActive = status !== 'disconnected';
 
   return (
     <ScrollView
