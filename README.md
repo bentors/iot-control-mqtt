@@ -111,7 +111,7 @@ Em qualquer cliente MQTT (ex.: [MQTTX](https://mqttx.app) ou o [HiveMQ WebSocket
 
 | Dashboard | Histórico | Configurações |
 |---|---|---|
-| ![Dashboard](docs/dashboard.png) | ![Histórico](docs/historico.png) | ![Configurações](docs/configuracoes.png) |
+| ![Dashboard](docs/dashboard.jpeg) | ![Histórico](docs/historico.jpeg) | ![Configurações](docs/configuracoes.jpeg) |
 
 - **Dashboard:** status da conexão (conectando / conectado / desconectado / erro, com mensagem e botão **Reconectar**), cards de temperatura e umidade com o último valor e o horário, e o estado da lâmpada com botões Ligar/Desligar. Mostra o feedback de "aguardando confirmação", de falta de conexão e de timeout.
 - **Histórico:** as 10 mensagens mais recentes (enviadas e recebidas), com direção, tópico, payload e horário. Atualiza em tempo real.
