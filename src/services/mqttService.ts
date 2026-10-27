@@ -79,12 +79,14 @@ export function connect(url: string): boolean {
   return true;
 }
 
+/** Encerra a conexão (se houver) e sempre volta o status para 'disconnected'. */
 export function disconnect() {
-  if (!client) return;
   const c = client;
   client = null;
-  if (c.connected) c.unsubscribe(SUBSCRIBED_TOPICS);
-  c.end(true);
+  if (c) {
+    if (c.connected) c.unsubscribe(SUBSCRIBED_TOPICS);
+    c.end(true);
+  }
   emitStatus('disconnected');
 }
 

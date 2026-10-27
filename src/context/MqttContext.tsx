@@ -114,6 +114,11 @@ export function MqttProvider({ initialBrokerUrl, children }: MqttProviderProps) 
 
   const connect = (url: string) => {
     const trimmed = url.trim();
+    if (!mqttService.isValidBrokerUrl(trimmed)) {
+      // URL inválida não derruba a conexão atual nem substitui a URL válida.
+      setError('URL inválida: ela deve começar com ws:// ou wss://');
+      return;
+    }
     if (trimmed !== brokerUrl) {
       // Leituras do broker anterior não valem para o novo.
       setTemperature(null);
@@ -122,7 +127,14 @@ export function MqttProvider({ initialBrokerUrl, children }: MqttProviderProps) 
       setPendingCommand(null);
     }
     setBrokerUrl(trimmed);
-    if (mqttService.connect(trimmed)) saveBrokerUrl(trimmed).catch(() => {});
+    saveBrokerUrl(trimmed).catch(() => {});
+    mqttService.connect(trimmed);
+  };
+
+  const disconnect = () => {
+    // Sem conexão não há confirmação a esperar: evita o falso aviso de timeout.
+    setPendingCommand(null);
+    mqttService.disconnect();
   };
 
   const sendLampCommand = async (action: LampState) => {
@@ -152,7 +164,7 @@ export function MqttProvider({ initialBrokerUrl, children }: MqttProviderProps) 
         commandError,
         history,
         connect,
-        disconnect: mqttService.disconnect,
+        disconnect,
         sendLampCommand,
       }}
     >
